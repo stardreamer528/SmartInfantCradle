@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +34,7 @@ public class Memories extends AppCompatActivity {
     private ArrayList<List_data> list_data;
     private GridView gridView;
     MyAdapterMemories adapter;
+    private FloatingActionButton refresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,16 @@ public class Memories extends AppCompatActivity {
         setContentView(R.layout.activity_memories);
         gridView=(GridView)findViewById(R.id.gridView);
         list_data=new ArrayList<>();
+        refresh = (FloatingActionButton)findViewById(R.id.floatingActionButton);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Clear array list of all previous entries
+                list_data.clear();
+                // adapter=new MyAdapter(getApplicationContext(),list_data);
+                getData();
+            }
+        });
 
 
         // adapter=new MyAdapter(getApplicationContext(),list_data);
@@ -77,7 +89,6 @@ public class Memories extends AppCompatActivity {
                         overridePendingTransition(0,0);
                         return true;
                 }
-
                 return false;
             }
         });
@@ -85,13 +96,13 @@ public class Memories extends AppCompatActivity {
 
 
     private void getData() {
-        ProgressBar pgsbar;
-        pgsbar = findViewById(R.id.progressBar);
-        StringRequest stringRequest =new StringRequest(Request.Method.GET, HI, new Response.Listener<String>() {
+        ProgressBar progressBar;
+        progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, HI, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
-                pgsbar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                //Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
                 try {
                     JSONObject jsonObject=new JSONObject(response);
                     JSONArray array=jsonObject.getJSONArray("data");
@@ -101,8 +112,8 @@ public class Memories extends AppCompatActivity {
                         list_data.add(listData);
                     }
                     adapter=new MyAdapterMemories(getApplicationContext(),R.layout.memories_grid_list,list_data);
+                    progressBar.setVisibility(View.GONE);
                     gridView.setAdapter(adapter);
-                    pgsbar.setVisibility(View.GONE);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
